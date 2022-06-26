@@ -22,43 +22,43 @@ cshow = \case
   Success -> '🟩'
   Misplace -> '🟨'
 
-attemps :: Int
-attemps = 6
+attempts :: Int
+attempts = 6
 
 play :: Text -> IO [Text]
-play selected_word = go attemps []
+play selected_word = go attempts []
   where
     go :: Int -> [Text] -> IO [Text]
     go 0 xs = return xs
     go n xs = do
       let i = 1 + length xs
 
-      putStrLn $ "Please enter your animal " ++ show i ++ "/" ++ show attemps ++ ": "
+      putStrLn $ "Please enter your animal " ++ show i ++ "/" ++ show attempts ++ ": "
 
-      attempStr <- getLine
-      let attemp = toLower . strip $ pack attempStr
+      attemptstr <- getLine
+      let attemp = toLower . strip $ pack attemptstr
       let (wordle, correct) = getWordle attemp selected_word
 
-      printf "Rustle (ES) %d/%d\n\n" i attemps
+      printf "Rustle (ES) %d/%d\n\n" i attempts
 
       TIO.putStrLn wordle
 
       if correct
         then do
           putStrLn "Congratulation!"
-          printf "Rustle (ES) %d/%d\n\n" i attemps
+          printf "Rustle (ES) %d/%d\n\n" i attempts
           return (wordle : xs)
         else do
           go (n - 1) (wordle : xs)
 
 getWordle :: Text -> Text -> (Text, Bool)
-getWordle attemp correct =
-  let result = T.zipWith go attemp correct
+getWordle attempt correct =
+  let result = T.zipWith go attempt correct
       rest =
-        if T.length attemp < T.length correct
-          then pack $ replicate (T.length correct - T.length attemp) $ cshow Fail
+        if T.length attempt < T.length correct
+          then pack $ replicate (T.length correct - T.length attempt) $ cshow Fail
           else mempty
-      isCorrect = attemp == correct
+      isCorrect = attempt == correct
    in (result <> rest, isCorrect)
   where
     go :: Char -> Char -> Char

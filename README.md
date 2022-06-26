@@ -4,7 +4,7 @@ This is a simple Wordle clone made with Haskell.
 
 ## Run Game
 
-> Is necesary install [stack](https://docs.haskellstack.org/en/stable/README/) a package manager of Haskell.
+> Is necessary install [stack](https://docs.haskellstack.org/en/stable/README/) a package manager of Haskell.
 
 ```
 stack run
@@ -117,27 +117,27 @@ import qualified Data.Text.IO as TIO
 import Text.Printf (printf)
 
 play :: Text -> IO [Text]
-play selected_word = go attemps []
+play selected_word = go attempts []
   where
     go :: Int -> [Text] -> IO [Text]
     go 0 xs = return xs
     go n xs = do
       let i = 1 + length xs
 
-      putStrLn $ "Please enter your animal " ++ show i ++ "/" ++ show attemps ++ ": "
+      putStrLn $ "Please enter your animal " ++ show i ++ "/" ++ show attempts ++ ": "
 
-      attempStr <- getLine
-      let attemp = toLower . strip $ pack attempStr
-      let (wordle, correct) = getWordle attemp selected_word
+      attemptstr <- getLine
+      let attempt = toLower . strip $ pack attemptstr
+      let (wordle, correct) = getWordle attempt selected_word
 
-      printf "Rustle (ES) %d/%d\n\n" i attemps
+      printf "Rustle (ES) %d/%d\n\n" i attempts
 
       TIO.putStrLn wordle
 
       if correct
         then do
           putStrLn "Congratulation!"
-          printf "Rustle (ES) %d/%d\n\n" i attemps
+          printf "Rustle (ES) %d/%d\n\n" i attempts
           return (wordle : xs)
         else do
           go (n - 1) (wordle : xs)
@@ -152,13 +152,13 @@ Other function important is `getWordle`, which is defined as:
 
 ```haskell
 getWordle :: Text -> Text -> (Text, Bool)
-getWordle attemp correct =
-  let result = T.zipWith go attemp correct
+getWordle attempt correct =
+  let result = T.zipWith go attempt correct
       rest =
-        if T.length attemp < T.length correct
-          then pack $ replicate (T.length correct - T.length attemp) $ cshow Fail
+        if T.length attempt < T.length correct
+          then pack $ replicate (T.length correct - T.length attempt) $ cshow Fail
           else mempty
-      isCorrect = attemp == correct
+      isCorrect = attempt == correct
    in (result <> rest, isCorrect)
   where
     go :: Char -> Char -> Char
@@ -170,7 +170,7 @@ getWordle attemp correct =
 
 > The function (<>) is a operator to concat two Semigroups, in this case, two Text, for example `"foo" <> "bar" = "foobar"`.
 
-This receives two `Text` types, `attemp` and `correct`, i.e., the attempt of user and the correct word. Haskell has the Let syntax, here we're going to define `result`.
+This receives two `Text` types, `attempt` and `correct`, i.e., the attempt of user and the correct word. Haskell has the Let syntax, here we're going to define `result`.
 
 The strategic that I thought was map the attempt and the correct word together, with some function that check if is success, misplace or fail. The function `zipWith` does that, apply `zip` to two lists and call a function with each pair values. In resume is a `map` and `zip` composed.
 
@@ -181,6 +181,8 @@ If the attempt word is more shore than the correct then the result in screen was
 Also, I defined some others things like:
 
 ```haskell
+{-# LANGUAGE LambdaCase #-}
+
 data State = Fail | Success | Misplace
 
 cshow :: State -> Char
@@ -189,11 +191,11 @@ cshow = \case
   Success -> '🟩'
   Misplace -> '🟨'
 
-attemps :: Int
-attemps = 6
+attempts :: Int
+attempts = 6
 ```
 
-I made a data type named `State` and defined `cshow` that return the character according to a `State`. And `attemps` that return the attempt amount of game.
+I made a data type named `State` and defined `cshow` that return the character according to a `State`. And `attempts` that return the attempt amount of game.
 
 Later of finish the game the program show the games, for this:
 
@@ -213,37 +215,44 @@ main = do
 
 ```
 $ stack run
-Please enter your animal 1/6:
-wolf
+Please enter your animal 1/6: 
+elephant
 Rustle (ES) 1/6
 
-⬜🟩⬜⬜⬜
-Please enter your animal 2/6:
-tortle
+⬜🟨⬜⬜
+Please enter your animal 2/6: 
+duck
 Rustle (ES) 2/6
 
-⬜🟩🟩⬜⬜
-Please enter your animal 3/6:
-gorilla
+⬜⬜⬜⬜
+Please enter your animal 3/6: 
+lark
 Rustle (ES) 3/6
 
-⬜🟩🟩⬜⬜
-Please enter your animal 4/6:
-orca
+🟨⬜⬜⬜
+Please enter your animal 4/6: 
+mule
 Rustle (ES) 4/6
 
-🟨🟨⬜⬜⬜
-Please enter your animal 5/6:
-horse
+⬜⬜🟨⬜
+Please enter your animal 5/6: 
+slug
 Rustle (ES) 5/6
 
-🟩🟩🟩🟩🟩
+⬜🟨⬜⬜
+Please enter your animal 6/6: 
+fowl
+Rustle (ES) 6/6
+
+🟩🟩🟩🟩
 Congratulation!
-Rustle (ES) 5/6
+Rustle (ES) 6/6
 
-⬜🟩⬜⬜⬜
-⬜🟩🟩⬜⬜
-⬜🟩🟩⬜⬜
-🟨🟨⬜⬜⬜
-🟩🟩🟩🟩🟩
+⬜🟨⬜⬜
+⬜⬜⬜⬜
+🟨⬜⬜⬜
+⬜⬜🟨⬜
+⬜🟨⬜⬜
+🟩🟩🟩🟩
+
 ```
